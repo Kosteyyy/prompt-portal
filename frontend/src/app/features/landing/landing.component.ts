@@ -1,0 +1,19 @@
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-landing',
+  standalone: true,
+  imports: [RouterLink],
+  template: `
+    <section class="hero">
+      <h1>Промпт-инжиниринг: учись, практикуясь</h1>
+      <p>Каждая концепция закрепляется интерактивным упражнением прямо в тексте.</p>
+      <div class="actions">
+        <a class="btn btn--primary" routerLink="/auth/register">Начать бесплатно</a>
+        <a class="btn" routerLink="/courses">Все курсы</a>
+      </div>
+    </section>
+  `,
+})
+export class LandingComponent {}
