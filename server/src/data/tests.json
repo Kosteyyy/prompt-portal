@@ -1,0 +1,28 @@
+[
+  {
+    "id": "prompt-basics-test",
+    "title": "Итоговый тест: основы промпт-инжиниринга",
+    "courseSlug": "prompt-basics",
+    "exercises": [
+      { "id": "t1", "type": "multiple-choice", "weight": 1, "question": "Что такое токен?",
+        "options": [
+          {"id":"a","text":"Слово"},{"id":"b","text":"Единица текста, примерно часть слова"},
+          {"id":"c","text":"Символ Unicode"}],
+        "correctOptions": ["b"], "explanation": "Токен — единица разбиения текста, обычно ~4 символа." },
+      { "id": "t2", "type": "true-false", "weight": 1, "question": "Проверьте утверждение:",
+        "statement": "Чем короче промпт, тем лучше ответ.",
+        "correctBool": false, "explanation": "Нет, важнее структура и контекст." },
+      { "id": "t3", "type": "fill-the-blank", "weight": 1, "question": "Заполните:",
+        "sentence": "Промпт обычно содержит роль, контекст, задачу и {{blank}}.",
+        "acceptedAnswers": ["формат"], "explanation": "" },
+      { "id": "t4", "type": "order-steps", "weight": 2, "question": "Порядок блоков промпта:",
+        "items": [{"id":"a","text":"Роль"},{"id":"b","text":"Контекст"},{"id":"c","text":"Задача"},{"id":"d","text":"Формат"}],
+        "correctOrder": ["a","b","c","d"], "explanation": "" },
+      { "id": "t5", "type": "match-pairs", "weight": 2, "question": "Соотнесите:",
+        "pairs": [
+          {"id":"p1","left":"Галлюцинация","right":"Уверенный, но неверный факт"},
+          {"id":"p2","left":"Контекстное окно","right":"Лимит токенов, которые видит модель"}],
+        "explanation": "" }
+    ]
+  }
+]

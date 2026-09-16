@@ -1,0 +1,9 @@
+[
+  {
+    "slug": "prompt-basics",
+    "title": "Основы промпт-инжиниринга",
+    "description": "Интуиция о LLM, структура промпта, роль и контекст.",
+    "articles": ["how-llm-works", "prompt-structure"],
+    "testId": "prompt-basics-test"
+  }
+]
