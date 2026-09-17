@@ -12,7 +12,14 @@ import { AuthService } from '../../../core/services/auth.service';
       <a routerLink="/" class="header__logo">PromptPortal</a>
       <nav class="header__nav">
         <a routerLink="/courses" routerLinkActive="active">Курсы</a>
-        <a *ngIf="auth.isAuthed" routerLink="/profile" routerLinkActive="active">Профиль</a>
+        <a
+          *ngIf="auth.isAuthed"
+          routerLink="/profile"
+          routerLinkActive="active"
+          class="header__user"
+        >
+          {{ auth.user()?.name || auth.user()?.email }}
+        </a>
         <a *ngIf="!auth.isAuthed" routerLink="/auth/login">Войти</a>
         <button *ngIf="auth.isAuthed" (click)="logout()">Выйти</button>
       </nav>
@@ -22,5 +29,8 @@ import { AuthService } from '../../../core/services/auth.service';
 export class HeaderComponent {
   auth = inject(AuthService);
   private router = inject(Router);
-  logout() { this.auth.logout(); this.router.navigate(['/']); }
+  logout() {
+    this.auth.logout();
+    this.router.navigate(['/']);
+  }
 }
