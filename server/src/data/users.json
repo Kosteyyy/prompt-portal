@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "id": "fdd70a86-cd31-4d80-b2cd-59202db33313",
+    "email": "kosteyyy",
+    "passwordHash": "$2a$10$BHMlUSiqcHT8GiPk6DZL1u1v2YrGwNWLzszGFFMXnahIOJpUg9vT2",
+    "role": "student",
+    "createdAt": "2026-09-17T06:33:58.558Z"
+  }
+]
