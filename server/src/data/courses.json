@@ -1,9 +1,13 @@
-[
-  {
-    "slug": "prompt-basics",
-    "title": "Основы промпт-инжиниринга",
-    "description": "Интуиция о LLM, структура промпта, роль и контекст.",
-    "articles": ["how-llm-works", "prompt-structure"],
-    "testId": "prompt-basics-test"
-  }
-]
+[{
+  "slug": "prompt-engineering",
+  "title": "Промпт-инжиниринг: практика",
+  "description": "Токены, структура промпта, ясность, few-shot и пошаговые рассуждения.",
+  "articles": [
+    "llm-tokens-context",
+    "prompt-anatomy",
+    "clarity-and-constraints",
+    "few-shot-examples",
+    "chain-of-thought-self-check"
+  ],
+  "testId": "prompt-engineering-test"
+}]
