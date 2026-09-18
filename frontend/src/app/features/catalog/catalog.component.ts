@@ -9,8 +9,8 @@ import { ArticleService } from '../../core/services/article.service';
   template: `
     <h1>Курсы</h1>
     <div class="grid">
-      <a class="card" routerLink="/courses/prompt-basics">
-        <h3>Основы промпт-инжиниринга</h3>
+      <a class="card" routerLink="/courses/prompt-engineering">
+        <h3>Промпт-инжиниринг: практика</h3>
         <p>Интуиция о LLM, структура промпта, роль и контекст.</p>
       </a>
     </div>

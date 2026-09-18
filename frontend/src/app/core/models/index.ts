@@ -70,6 +70,14 @@ export interface Article {
   blocks: Block[];
 }
 
+export interface Course {
+  slug: string;
+  title: string;
+  description: string;
+  articles: string[];
+  testId: string;
+}
+
 export interface Test {
   id: string;
   title: string;
