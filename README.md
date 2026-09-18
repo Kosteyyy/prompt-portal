@@ -73,7 +73,7 @@
 | `match-pairs` | `exercises/match-pairs` | Соответствие «термин ↔ определение» с частичным баллом |
 | `fill-the-blank` | `exercises/fill-the-blank` | Вставка пропущенного слова (нормализация регистра и пробелов) |
 | `true-false` | `exercises/true-false` | Верно / неверно с обязательным объяснением |
-| `order-steps` | `exercises/order-steps` | Правильный порядок шагов, частичный балл по позициям |
+| `order-steps` | `exercises/order-steps` | Правильный порядок шагов, частичный балл по позициям. drag-n-drop |
 | `prompt-builder` **(кастомный)** | `exercises/prompt-builder` | Собрать промпт из блоков: назначить фрагменту роль / контекст / задачу / формат |
 
 **Кастомный компонент — `PromptBuilder`.** Это уникальный тип для темы
