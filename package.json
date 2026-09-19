@@ -4,7 +4,7 @@
   "description": "",
   "main": "setup_client.js",
   "scripts": {
-    "prepare": "husky",
+    "prepare": "command -v husky >/dev/null 2>&1 && husky || exit 0",
     "lint:commits": "commitlint --from HEAD~5 --to HEAD --verbose",
     "test": "echo \"No tests yet\" && exit 0",
     "dev:frontend": "npm run start -w frontend",

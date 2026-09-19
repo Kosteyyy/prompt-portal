@@ -8,6 +8,18 @@ export class JsonStore {
         this.writeQueue = Promise.resolve();
     }
 
+        async init() {
+        await fs.mkdir(path.dirname(this.filePath), { recursive: true });
+        try {
+            await fs.access(this.filePath);
+        } catch (err) {
+            if (err.code !== "ENOENT") throw err;
+            await fs.writeFile(this.filePath, "[]\n");
+        }
+        await this._load();
+        return this;
+    }
+
     async _load() {
         if (this.cache) return this.cache;
         try {

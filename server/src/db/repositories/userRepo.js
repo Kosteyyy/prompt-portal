@@ -9,7 +9,9 @@ export class UserRepo {
     }
 
     static async create() {
-        return new UserRepo(new JsonStore(path.join(config.dataDir, "users.json")));
+        const store = new JsonStore(path.join(config.dataDir, "users.json"));
+        await store.init();
+        return new UserRepo(store);
     }
 
     findById(id) {
