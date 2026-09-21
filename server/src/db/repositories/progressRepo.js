@@ -8,7 +8,9 @@ export class ProgressRepo {
         this.store = store;
     }
     static async create() {
-        return new ProgressRepo(new JsonStore(path.join(config.dataDir, "progress.json")));
+        const store = new JsonStore(path.join(config.dataDir, "progress.json"));
+        await store.init();
+        return new ProgressRepo(store);
     }
     findByUser(userId) {
         return this.store.filter((p) => p.userId === userId);

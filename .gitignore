@@ -21,6 +21,10 @@ build/
 .DS_Store
 Thumbs.db
 
+# runtime файлы с данными пользователей
+
 users.json
+progress.json
+attempts.json
 
 

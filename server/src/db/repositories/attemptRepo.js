@@ -8,7 +8,9 @@ export class AttemptRepo {
         this.store = store;
     }
     static async create() {
-        return new AttemptRepo(new JsonStore(path.join(config.dataDir, "attempts.json")));
+        const store = new JsonStore(path.join(config.dataDir, "attempts.json"));
+        await store.init();
+        return new AttemptRepo(store);
     }
     listByUser(userId) {
         return this.store.filter((a) => a.userId === userId);
