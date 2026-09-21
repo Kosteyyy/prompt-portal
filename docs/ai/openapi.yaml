@@ -1,0 +1,386 @@
+openapi: 3.0.3
+info:
+  title: edu_portal API (prompt-portal-server)
+  version: 1.0.0
+  description: >
+    Сгенерировано вручную по коду server/src (шаг 2 документации).
+    Источники каждого эндпоинта — docs/ai/API.md.
+servers:
+  - url: http://localhost:3000
+    description: Локальный сервер (PORT по умолчанию, server/src/config/index.js:5)
+tags:
+  - name: auth
+  - name: articles
+  - name: courses
+  - name: tests
+  - name: progress
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Bearer-токен из Authorization; server/src/middleware/auth.js:4-7
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      # формат ошибки — server/src/middleware/error.js:3
+    UserPublic:
+      type: object
+      properties:
+        id: { type: string }
+        email: { type: string }
+        name: { type: string }
+        role: { type: string, example: student }
+        createdAt: { type: string, format: date-time }
+      # форма — routes/auth.js:12-18 (pub) + userRepo.js:24-34
+    TokenPair:
+      type: object
+      properties:
+        token: { type: string }
+        user: { $ref: '#/components/schemas/UserPublic' }
+      # routes/auth.js:37,50
+    Course:
+      type: object
+      properties:
+        slug: { type: string }
+        title: { type: string }
+        description: { type: string }
+        articles:
+          type: array
+          items: { type: string }
+        testId: { type: string }
+      # форма — server/src/data/courses.json:2-12
+    ExerciseConfig:
+      type: object
+      required: [id, type, question, explanation]
+      properties:
+        id: { type: string }
+        type:
+          type: string
+          enum: [true-false, multiple-choice, fill-the-blank, match-pairs, order-steps, prompt-builder]
+        weight: { type: number }
+        question: { type: string }
+        explanation: { type: string }
+      # union по полю type; встречено в articles.json и tests.json.
+      # Спец-поля каждого типа здесь не специфицированы (см. docs/ai/DATA_MODEL.md)
+    Article:
+      type: object
+      properties:
+        slug: { type: string }
+        courseSlug: { type: string }
+        title: { type: string }
+        summary: { type: string }
+        testId: { type: string }
+        blocks:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                properties: { type: { type: string, enum: [text] }, md: { type: string } }
+              - type: object
+                properties:
+                  type: { type: string, enum: [image] }
+                  url: { type: string }
+                  alt: { type: string }
+              - type: object
+                properties:
+                  type: { type: string, enum: [exercise] }
+                  config: { $ref: '#/components/schemas/ExerciseConfig' }
+      # форма — articles.json:2-75; типы блоков встречены: text, image, exercise
+    Test:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        courseSlug: { type: string }
+        exercises:
+          type: array
+          items: { $ref: '#/components/schemas/ExerciseConfig' }
+      # форма — tests.json:2-136
+    ProgressRecord:
+      type: object
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        articleSlug: { type: string }
+        completedAt: { type: string, format: date-time }
+      # форма — progressRepo.js:20-25
+    Answer:
+      type: object
+      properties:
+        exerciseId: { type: string }
+        score: { type: number }
+        maxScore: { type: number }
+        isCorrect: { type: boolean }
+        partial: { type: boolean }
+      # форма — attempts.json:7-12 (выведено из данных, сервер не валидирует)
+    Attempt:
+      type: object
+      properties:
+        id: { type: string }
+        userId: { type: string }
+        testId: { type: string }
+        answers:
+          type: array
+          items: { $ref: '#/components/schemas/Answer' }
+        score: { type: number }
+        maxScore: { type: number }
+        createdAt: { type: string, format: date-time }
+      # форма — attemptRepo.js:18-26
+    ProgressResponse:
+      type: object
+      properties:
+        articles:
+          type: array
+          items: { $ref: '#/components/schemas/ProgressRecord' }
+        attempts:
+          type: array
+          items: { $ref: '#/components/schemas/Attempt' }
+      # routes/progress.js:9-13
+security:
+  - {}
+paths:
+  /api/auth/register:
+    post:
+      tags: [auth]
+      summary: Регистрация пользователя
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email: { type: string }
+                password: { type: string }
+                name: { type: string, minLength: 2 }
+              # routes/auth.js:25-31
+      responses:
+        '200':
+          description: Токен + публичный пользователь
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+        '400':
+          description: Не все поля заполнены / имя короче 2 символов
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '409':
+          description: Email занят («Email taken»)
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /api/auth/login:
+    post:
+      tags: [auth]
+      summary: Вход
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+              # routes/auth.js:45
+      responses:
+        '200':
+          description: Токен + публичный пользователь
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+        '401':
+          description: Invalid credentials
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  /api/auth/me:
+    get:
+      tags: [auth]
+      summary: Текущий пользователь
+      operationId: me
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Публичный объект пользователя
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserPublic' }
+        '401': { description: No token / Invalid token }
+        '404': { description: Пользователь не найден }
+  /api/articles:
+    get:
+      tags: [articles]
+      summary: Список статей
+      operationId: listArticles
+      security: []
+      parameters:
+        - name: course
+          in: query
+          required: false
+          schema: { type: string }
+          description: Фильтр по courseSlug
+          # routes/articles.js:7-8
+      responses:
+        '200':
+          description: Массив статей
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Article' }
+  /api/articles/{slug}:
+    get:
+      tags: [articles]
+      summary: Статья по slug
+      operationId: getArticle
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Статья
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Article' }
+        '404': { description: Not found }
+  /api/courses:
+    get:
+      tags: [courses]
+      summary: Список курсов
+      operationId: listCourses
+      security: []
+      responses:
+        '200':
+          description: Массив курсов
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Course' }
+  /api/courses/{slug}:
+    get:
+      tags: [courses]
+      summary: Курс по slug
+      operationId: getCourse
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Курс
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Course' }
+        '404': { description: Not found }
+  /api/tests/{id}:
+    get:
+      tags: [tests]
+      summary: Тест по id
+      operationId: getTest
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Тест
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Test' }
+        '404': { description: Not found }
+  /api/progress:
+    get:
+      tags: [progress]
+      summary: Прогресс и попытки текущего пользователя
+      operationId: getProgress
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Статьи и попытки
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProgressResponse' }
+        '401': { description: No token / Invalid token }
+  /api/progress/article/{slug}:
+    post:
+      tags: [progress]
+      summary: Отметить статью прочитанной (идемпотентно)
+      operationId: markArticle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Запись прогресса
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProgressRecord' }
+        '401': { description: No token / Invalid token }
+  /api/progress/test/{id}:
+    post:
+      tags: [progress]
+      summary: Сохранить попытку теста
+      operationId: saveAttempt
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                answers:
+                  type: array
+                  items: { $ref: '#/components/schemas/Answer' }
+                score: { type: number }
+                maxScore: { type: number }
+              # routes/progress.js:22
+      responses:
+        '200':
+          description: Созданная попытка
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Attempt' }
+        '401': { description: No token / Invalid token }
+  /images/{file}:
+    get:
+      tags: [progress]
+      summary: Статика изображений из server/src/data/images
+      security: []
+      parameters:
+        - name: file
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Файл изображения (кэш 7 дней)
+          content:
+            image/jpeg: {}
+      # server/src/app.js:25-30
