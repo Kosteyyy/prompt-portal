@@ -143,10 +143,11 @@
   (PORT, JWT_SECRET, DB_BACKEND, DATA_DIR); fallback-значения в коде (:5-8).
 - Секреты не в репо: `.env` в gitignore (`.gitignore:5`), образец —
   `server/.env.example`.
-- Контент курса хранится как данные (`server/src/data/*.json`), а не в БД;
+- Контент курса хранится как данные (`server/data/*.json`), а не в БД;
   правка контента — правка JSON-файлов.
-- Пользовательский файл `users.json` не коммитится (`.gitignore:24`); в репо —
-  `users.example.json`.
+- Рантайм-данные не коммитятся: `users.json`, `progress.json`,
+  `attempts.json` (`.gitignore:26-28`); создаются при старте с `[]`
+  (`server/src/db/jsonStore.js:11-21`); в репо — `users.example.json`.
 - Секрет от JWT имеет dev-fallback `'dev-secret'` (`config/index.js:6`) —
   ⚠️ inferred: это риск для прод-деплоя (README упоминает прод,
   `README.md:269`).

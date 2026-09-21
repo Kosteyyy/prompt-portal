@@ -1,19 +1,20 @@
 # DATA_MODEL — Backend (шаг 2)
 
-Хранилище: JSON-файлы в `config.dataDir` (по умолчанию `./src/data`,
-`server/src/config/index.js:8`). Схем/валидации в коде нет — формы ниже выведены
-из кода репозиториев и фактических данных в `server/src/data/`.
+Хранилище: JSON-файлы в `config.dataDir` (fallback кода `./src/data`,
+`server/src/config/index.js:8`; фактически — `server/data/`, ⚠️ inferred по
+созданию рантайм-файлов там). Схем/валидации в коде нет — формы ниже выведены
+из кода репозиториев и фактических данных в `server/data/`.
 
 ## 1. Хранилища (файлы)
 
-| Коллекция | Файл | Репозиторий |
-|---|---|---|
-| users | `users.json` (`server/src/db/repositories/userRepo.js:12`) | UserRepo |
-| articles | `articles.json` (`articleRepo.js:10`) | ArticleRepo |
-| courses | `courses.json` (`courseRepo.js:10`) | CourseRepo |
-| tests | `tests.json` (`testRepo.js:10`) | TestRepo |
-| progress | `progress.json` (`progressRepo.js:11`) | ProgressRepo |
-| attempts | `attempts.json` (`attemptRepo.js:11`) | AttemptRepo |
+| Коллекция | Файл (в `DATA_DIR`) | В репо? | Репозиторий |
+|---|---|---|---|
+| users | `users.json` | ❌ `.gitignore:26`, создаётся `init()` (`jsonStore.js:11-21`) | UserRepo |
+| articles | `articles.json` | ✅ `server/data/` | ArticleRepo |
+| courses | `courses.json` | ✅ `server/data/` | CourseRepo |
+| tests | `tests.json` | ✅ `server/data/` | TestRepo |
+| progress | `progress.json` | ❌ `.gitignore:27`, создаётся `init()` | ProgressRepo |
+| attempts | `attempts.json` | ❌ `.gitignore:28`, создаётся `init()` | AttemptRepo |
 
 ## 2. Сущности
 
@@ -30,9 +31,9 @@
 - ⚠️ inferred: `name` передаётся в `create()` (`routes/auth.js:36`), но не
   сохраняется — поле `name` в User отсутствует (деструктуризация
   `userRepo.js:24`).
-- Пример записи: `server/src/data/users.example.json:2-8`.
+- Пример записи: `server/data/users.example.json:2-8`.
 
-### Course — из данных (`server/src/data/courses.json:2-12`)
+### Course — из данных (`server/data/courses.json:2-12`)
 
 | Поле | Тип | Источник |
 |---|---|---|
@@ -42,7 +43,7 @@
 | articles | string[] (slug'и статей) | `courses.json:5-11` |
 | testId | string (id теста) | `courses.json:12` |
 
-### Article — из данных (`server/src/data/articles.json:2-75`)
+### Article — из данных (`server/data/articles.json:2-75`)
 
 | Поле | Тип | Источник |
 |---|---|---|
@@ -54,7 +55,7 @@
 | blocks | Block[] | `articles.json:8` |
 
 **Block** — union по полю `type` (все встреченные значения,
-`server/src/data/articles.json`):
+`server/data/articles.json`):
 
 | type | Поля | Пример |
 |---|---|---|
@@ -62,7 +63,7 @@
 | `image` | `url: string` (путь `/images/...`), `alt: string` | `articles.json:14-17` |
 | `exercise` | `config: ExerciseConfig` | `articles.json:23-33` |
 
-### Test — из данных (`server/src/data/tests.json:2-136`)
+### Test — из данных (`server/data/tests.json:2-136`)
 
 | Поле | Тип | Источник |
 |---|---|---|
@@ -99,7 +100,8 @@ frontend — `frontend/src/app/core/models/index.ts` (не анализиров�
 | articleSlug | string | `progressRepo.js:23` |
 | completedAt | string (ISO 8601) | `progressRepo.js:24` |
 
-Пример: `server/src/data/progress.json:2-7`. Уникальность пары
+Пример (локальный рантайм-файл, вне репо): `server/data/progress.json:2-7`.
+Уникальность пары
 `(userId, articleSlug)` обеспечивается проверкой в `markArticle`
 (`progressRepo.js:18-19`).
 

@@ -12,9 +12,11 @@ npm workspaces-монорепозиторий из двух пакетов: `ser
 ├── package.json                 # корневой workspace, husky/commitlint
 ├── commitlint.config.js         # правила conventional commits
 ├── .husky/                      # pre-commit, commit-msg
+├── docs/ai/                     # эта документация
 ├── server/                      # Express API (ESM)
 │   ├── .env.example
 │   ├── package.json
+│   ├── data/                    # JSON-хранилище (DATA_DIR): контент + рантайм
 │   └── src/
 │       ├── index.js             # точка входа
 │       ├── app.js               # сборка express-приложения
@@ -22,7 +24,7 @@ npm workspaces-монорепозиторий из двух пакетов: `ser
 │       ├── db/                  # jsonStore.js + repositories/ (6 репозиториев)
 │       ├── middleware/          # auth.js, error.js
 │       ├── routes/              # auth, articles, courses, tests, progress
-│       └── data/                # *.json + images/
+│       └── data/images/         # статика картинок (отдаётся по /images)
 └── frontend/                    # Angular standalone
     ├── angular.json
     ├── proxy.conf.json          # /api и /images → localhost:3000
@@ -53,8 +55,9 @@ npm workspaces-монорепозиторий из двух пакетов: `ser
 - Формат модулей: ESM (`"type": "module"`, `server/package.json:4`).
 - Скрипты: `dev` = `node --watch src/index.js`, `start` = `node src/index.js`
   (`server/package.json:6-7`).
-- Хранилище: JSON-файлы в `server/src/data/` (`server/src/config/index.js:8`,
-  `server/.env.example:4`). БД, ORM, миграции — отсутствуют в коде.
+- Хранилище: JSON-файлы в `server/data/` (путь из `DATA_DIR`; fallback в коде
+  — устаревший `./src/data`, `server/src/config/index.js:8`).
+  БД, ORM, миграции — отсутствуют в коде.
 
 ### Frontend (`frontend/package.json:24-47`)
 
@@ -106,7 +109,7 @@ devDependencies: `@commitlint/cli` ^21.2.2, `@commitlint/config-conventional`
 | PORT | 3000 | `server/src/config/index.js:5` |
 | JWT_SECRET | `dev-secret` (fallback) | `server/src/config/index.js:6` |
 | DB_BACKEND | json | `server/src/config/index.js:7` |
-| DATA_DIR | `./src/data` | `server/src/config/index.js:8` |
+| DATA_DIR | fallback кода `./src/data` (`config/index.js:8`); фактически `./data` | ⚠️ inferred: значение из `.env` (не читался); подтверждается созданием рантайм-файлов в `server/data/` |
 
 Frontend env: dev — `apiBase: 'http://localhost:3000/api'`
 (`frontend/src/environments/environment.ts:3`), prod — `apiBase: '/api'`
@@ -125,12 +128,14 @@ fileReplacements (`frontend/angular.json:51-55`).
 | `.env.example` | ✅ есть | `server/.env.example` |
 | Git hooks | ✅ есть | `.husky/pre-commit` (запускает `npm test`), `.husky/commit-msg` (commitlint) |
 | Commitlint | ✅ есть | `commitlint.config.js:4` — scope-enum: frontend, server, shared, deps, ci |
-| Данные-фикстуры | ✅ есть | `server/src/data/`: articles.json, courses.json, tests.json, progress.json, attempts.json, users.example.json, images/ (3 jpg) |
+| Данные-контент | ✅ есть | `server/data/`: articles.json, courses.json, tests.json, users.example.json |
+| Статика изображений | ✅ есть | `server/src/data/images/` (3 jpg) — не перемещалась |
+| Рантайм-данные | ❌ вне репо | users.json, progress.json, attempts.json — в `.gitignore:26-28`; создаются при старте с `[]` (`server/src/db/jsonStore.js:11-21`) |
 | Lint (eslint) | ❌ отсутствует | нет в package.json; только prettier-конфиг (`frontend/package.json:11-22`) |
 | Документация | ✅ README.md | описание запуска, структуры, деплоя |
 | Генераторы скелета | ✅ setup_server.js, setup_frontend.js | создают пустые файлы структуры; прод-кодом не являются |
 
-`users.json` в gitignore (`.gitignore:24`), в репо только `users.example.json`.
+`users.json`, `progress.json`, `attempts.json` в gitignore (`.gitignore:26-28`).
 
 ⚠️ inferred: README описывает прод-деплой (pm2, nginx, Let's Encrypt,
 `README.md:269-279`), но конфигов pm2/nginx в репозитории нет — только текст в
@@ -162,11 +167,13 @@ README.
 3. **Деплой**: pm2/nginx/HTTPS описаны только в README (`README.md:269-279`),
    конфигов в репо нет. Нужен ли доступ к серверным конфигам для полноты
    документации?
-4. **`users.json`**: реальный файл с пользователями в gitignore
-   (`.gitignore:24`). Есть ли в `users.example.json` эталонная схема пользователя
-   (проверить на шаге моделей данных)?
+4. **`users.example.json`**: существует в двух копиях — `server/data/` и
+   `server/src/data/`. Какая актуальна? Вторая — leftover после переезда?
 5. **`DB_BACKEND`**: поддерживается ли что-то кроме `json`? (проверить
    `server/src/db/index.js` на шаге архитектуры).
 6. **ESLint / Prettier**: prettier-конфиг есть только во frontend, линтера нет.
    Это осознанно?
+7. **Fallback `DATA_DIR`**: в коде осталось `./src/data`
+   (`server/src/config/index.js:8`), фактически используется `./data`.
+   Обновить fallback и `.env.example`?
 
